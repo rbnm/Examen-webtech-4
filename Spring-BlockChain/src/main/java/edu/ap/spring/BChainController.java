@@ -14,25 +14,50 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import edu.ap.spring.service.Block;
+import edu.ap.spring.service.BlockChain;
 import edu.ap.spring.service.Wallet;
+import edu.ap.spring.transaction.Transaction;
 
 @Controller
 public class BChainController {
 
+    @Autowired
+	private BlockChain bChain;
+	@Autowired
+	private Wallet coinbase, walletA, walletB;
+	private Transaction genesisTransaction;
+
+
+
     @GetMapping("/transaction")
     public String getForm() {
-        return "sendFunds";
+        return "transaction";
     }
 
     @PostMapping("/transaction")
-    public String sendFunds(@RequestParam("from") String from, @RequestParam("to") String to,
+    public String sendFunds(@RequestParam("from") Wallet from, @RequestParam("to") Wallet to,
     @RequestParam("amount") Float amount) {
-        Wallet senderWallet = bChain.getWalletFromKey(from);
-        Wallet receiverWallet = bChain.getWalletFromKey(to);
-        try{
-        bChain.block1.addTransaction(senderWallet.sendFunds(receiverWallet.publicKey, amount), bChain.bChain);
-        }catch(Exception e){}
-        bChain.bChain.addBlock(bChain.block1);
-        return "redirect:/";
+        Block block = new Block();
+		block.setPreviousHash(bChain.getLastHash());
+        from = (Wallet)(from);
+        from = (Wallet)(to);
+		try {
+			block.addTransaction(from.sendFunds(to.getPublicKey(), amount), bChain);
+		} 
+		catch(Exception e) {}
+		
+		bChain.addBlock(block);
+        return "redirect:/transaction";
     }
+
+    @GetMapping(value="/balance/{wallet}")
+    public String getBalance(@PathVariable("wallet") Wallet wallet, Model model) {
+
+        float balance = wallet.getBalance();
+        model.addAttribute("balance", balance);
+        return "balance";
+    }
+    
 }

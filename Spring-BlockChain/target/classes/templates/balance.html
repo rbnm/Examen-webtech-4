@@ -10,9 +10,8 @@
 <body>
 <div class='card card-body bg-light'>
     <h1><p th:text="${balance}" /></h1>
-    <form th:action='@{/}' method='POST'>
-        <input type='SUBMIT' value='Home'>
-    </form>
+    
+    <a href="/transaction">send transaction</a>
 
 </div>
 
