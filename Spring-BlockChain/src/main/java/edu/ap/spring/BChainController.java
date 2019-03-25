@@ -41,10 +41,10 @@ public class BChainController {
     @RequestParam("amount") Float amount) {
         Block block = new Block();
 		block.setPreviousHash(bChain.getLastHash());
-        from = (Wallet)(from);
-        from = (Wallet)(to);
+        Wallet sender = from;
+        Wallet ontvanter = to;
 		try {
-			block.addTransaction(from.sendFunds(to.getPublicKey(), amount), bChain);
+			block.addTransaction(sender.sendFunds(ontvanter.getPublicKey(), amount), bChain);
 		} 
 		catch(Exception e) {}
 		
@@ -54,8 +54,8 @@ public class BChainController {
 
     @GetMapping(value="/balance/{wallet}")
     public String getBalance(@PathVariable("wallet") Wallet wallet, Model model) {
-
-        float balance = wallet.getBalance();
+        Wallet wlt = (Wallet)wallet;
+        float balance = wlt.getBalance();
         model.addAttribute("balance", balance);
         return "balance";
     }
